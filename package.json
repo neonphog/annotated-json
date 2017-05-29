@@ -1,0 +1,16 @@
+{
+  "name": "annotated-json",
+  "version": "0.0.1",
+  "description": "JSON config file reader / writer allowing for annotation",
+  "main": "annotated-json.js",
+  "scripts": {
+    "test": "standard && mocha test/test.js"
+  },
+  "author": "David Braden (neonphog)",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "diff": "^3.2.0",
+    "mocha": "^3.4.2",
+    "standard": "^10.0.2"
+  }
+}

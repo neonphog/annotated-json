@@ -1,0 +1,33 @@
+[
+  "This JSON config file supports comments by giving types special meaning.",
+  " - The root MUST be an array.",
+  " - A string is a comment.",
+  " - An array with exactly two elements defines a sub-block.",
+  "   [ <blockname>, [ <annotated json> ]]",
+  " - An object with exactly one key specifies a name / value.",
+  "   { <name>: <value> }",
+  " - Anything else will error on parse.",
+
+  "",
+  "An empty string is a renderer hint to put a newline above it.",
+
+  "",
+  ["post", [
+    "testing post comment",
+    {"val": true},
+    "here is a post comment"
+  ]],
+
+  "",
+  ["expand value", [
+    "testing multiline value",
+    {"multiline": [
+      1,
+      2,
+      3
+    ]}
+  ]],
+
+  "",
+  "end of file"
+]
