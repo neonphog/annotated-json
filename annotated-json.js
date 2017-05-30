@@ -212,11 +212,11 @@ function _render (annotations, json) {
       if (Array.isArray(sub.pre) && sub.pre.length) {
         out = out.concat(sub.pre)
       }
-      if (sub.value) {
+      if (sub.value && name in json) {
         obj = {}
         obj[name] = json[name]
         out.push(obj)
-      } else {
+      } else if (name in json) {
         out.push([name, _render(sub, json[name])])
       }
       if (Array.isArray(sub.post) && sub.post.length) {

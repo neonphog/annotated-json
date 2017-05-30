@@ -33,9 +33,23 @@ describe('annotated-json Suite', function () {
     var arrayForm = ['comment', {key: 'value'}]
     var parsed = ajson.parse(arrayForm)
     parsed.json.key2 = 'value2'
-    var rendered = ajson.render(parsed)
+    var rendered = ajson.stringify(parsed)
     var parsed2 = ajson.parse(rendered)
     expect(parsed2.json.key).equals('value')
     expect(parsed2.json.key2).equals('value2')
+  })
+
+  it('ensure raw json deletes work', function () {
+    var arrayForm = [
+      'comment',
+      {key1: 'value1'},
+      {key2: 'value2'}
+    ]
+    var parsed = ajson.parse(arrayForm)
+    delete parsed.json.key2
+    var rendered = ajson.stringify(parsed)
+    var parsed2 = ajson.parse(rendered)
+    expect(parsed2.json.key1).equals('value1')
+    expect(parsed2.json.key2).equals(undefined)
   })
 })
