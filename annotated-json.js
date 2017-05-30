@@ -19,6 +19,13 @@
 var os = require('os')
 
 /**
+ * Parse an annotated-json array file into a more machine usable object tree.
+ * E.g. `[{"key": "value"}]` -> `{annotations:{},json:{"key": "value"}}`
+ *
+ * @param {string|array} data - input data
+ * @return {object}
+ *   return.json - `data` as object tree
+ *   return.annotations - `data` annotations separated out
  */
 exports.parse = function parse (data) {
   if (typeof data === 'string' || data instanceof Buffer) {
@@ -36,6 +43,11 @@ exports.parse = function parse (data) {
 }
 
 /**
+ * Render a json object + annotations tree back into annotated-json array form.
+ * @param {object} data
+ * @param {object} data.annotations - annotations tree
+ * @param {object} data.json - the raw json object to render
+ * @return {array}
  */
 exports.render = function render (data) {
   if (typeof data !== 'object' ||
@@ -47,6 +59,11 @@ exports.render = function render (data) {
 }
 
 /**
+ * Stringify a json object + annotations or annotated-json array.
+ * String format differs slightly from a raw JSON.stringify mostly
+ * in terms of line-break positioning for human readability.
+ * @param {object|array} data
+ * @return {string}
  */
 exports.stringify = function stringify (data) {
   if (typeof data === 'object' &&
@@ -63,6 +80,11 @@ exports.stringify = function stringify (data) {
 // -- private -- //
 
 /**
+ * Append an item to the subPath array without clobbering the original
+ * @private
+ * @param {array} subPath
+ * @param {string} next
+ * @return {array}
  */
 function _subPathAppend (subPath, next) {
   var out = subPath.slice(0)
@@ -71,6 +93,11 @@ function _subPathAppend (subPath, next) {
 }
 
 /**
+ * Return json object based on subPath array
+ * @private
+ * @param {object} obj
+ * @param {array} subPath
+ * @return {object}
  */
 function _jsonSubPath (obj, subPath) {
   var out = obj.json
@@ -84,6 +111,11 @@ function _jsonSubPath (obj, subPath) {
 }
 
 /**
+ * Return annotation tree node based on subPath array
+ * @private
+ * @param {object} obj
+ * @param {array} subPath
+ * @return {object}
  */
 function _annotationSubPath (obj, subPath) {
   var out = obj.annotations
@@ -109,6 +141,11 @@ function _annotationSubPath (obj, subPath) {
 }
 
 /**
+ * Workhorse recursive parse function. Converts array-form into object-form.
+ * @private
+ * @param {object} outObj - out param we are filling with data
+ * @param {array} inData - in data node we are currently parsing
+ * @param {array} subPath - tree location
  */
 function _parse (outObj, inData, subPath) {
   var i, item, key, nextSubPath
@@ -153,10 +190,16 @@ function _parse (outObj, inData, subPath) {
 }
 
 /**
+ * Workhorse recursive render function. Converts object-form into array-form.
+ * @private
+ * @param {object} annotations
+ * @param {object} json
+ * @return {array} array-form annotated-json
  */
 function _render (annotations, json) {
-  var i, name, sub, obj
+  var i, name, sub, obj, keys
 
+  var foundKeys = {}
   var out = []
 
   if (annotations.sub) {
@@ -164,6 +207,7 @@ function _render (annotations, json) {
       sub = annotations.sub[i]
       name = sub[0]
       sub = sub[1]
+      foundKeys[name] = true
 
       if (Array.isArray(sub.pre) && sub.pre.length) {
         out = out.concat(sub.pre)
@@ -181,10 +225,27 @@ function _render (annotations, json) {
     }
   }
 
+  // fill in any keys the user may have added directly
+  keys = Object.keys(json)
+  for (i = 0; i < keys.length; ++i) {
+    name = keys[i]
+    if (!(name in foundKeys)) {
+      obj = {}
+      obj[name] = json[name]
+      out.push(obj)
+    }
+  }
+
   return out
 }
 
 /**
+ * Workhorse recursive stringify function. Converts array-form into a string.
+ * @private
+ * @param {array} data
+ * @param {number} indent - how many spaces to indent by
+ * @param {number} depth - current recursive depth
+ * @return {string}
  */
 function _stringify (data, indent, depth) {
   var i, item, key
